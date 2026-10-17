@@ -1,10 +1,18 @@
 {
   "version": 1,
-  "note": "The system media service chooses a random entry every 20 seconds. Player volume is set to 50%; browsers may ask for one click to permit autoplay with sound. Add more MP4/WebM files here to expand the randomness.",
+  "note": "The system randomly starts a local video every 20 seconds. Volume is set to 50%. Add more MP4 or WebM files here to expand the playlist; browsers may require a click once to permit autoplay with sound.",
   "videos": [
     {
       "src": "j5prime-chaos-reel.mp4",
-      "title": "ДА БОЖЕЕЕЕ / SYSTEM BROADCAST"
+      "title": "ДА БОЖЕЕЕЕ / J5 PRIME 0 FPS"
+    },
+    {
+      "src": "02-kasper.webm",
+      "title": "KASPERSKY.EXE / 999 УГРОЗ"
+    },
+    {
+      "src": "03-ad.webm",
+      "title": "SYSTEM AD / КУПИ RAM"
     }
   ]
 }

@@ -209,7 +209,7 @@ function simulateLag(label,callback,hard){
 function appButton(a){return '<button class="app-icon" data-app="'+a[0]+'"><span class="ico '+a[3]+'">'+a[1]+'</span><span>'+a[2]+'</span></button>'}
 function renderHome(){
  currentApp='home';
- screen.innerHTML='<div class="home-view"><div class="home-date">Суббота · '+clock().slice(0,5)+' · '+(wifiOn?'Wi-Fi подключен':'Интернет потерян')</div><div class="home-widget"><div class="weather"><div><div style="font-size:12px;font-weight:700">Состояние системы</div><small>Всё под контролем. Чьим — не уточняется.</small></div><div class="temp">1<span style="font-size:11px"> FPS</span></div></div></div><div class="app-grid">'+appInfo.map(appButton).join('')+'</div><div class="dock"><button data-app="phone" aria-label="Телефон">📞</button><button data-app="browser" aria-label="Интернет">🌐</button><button data-app="messages" aria-label="Сообщения">💬</button><button data-app="camera" aria-label="Камера">📷</button></div></div>';
+ screen.innerHTML='<div class="home-view"><div class="home-date">Суббота · '+clock().slice(0,5)+' · '+(wifiOn?'Wi-Fi подключен':'Интернет потерян')+'</div><div class="home-widget"><div class="weather"><div><div style="font-size:12px;font-weight:700">Состояние системы</div><small>Всё под контролем. Чьим — не уточняется.</small></div><div class="temp">1<span style="font-size:11px"> FPS</span></div></div></div><div class="app-grid">'+appInfo.map(appButton).join('')+'</div><div class="dock"><button data-app="phone" aria-label="Телефон">📞</button><button data-app="browser" aria-label="Интернет">🌐</button><button data-app="messages" aria-label="Сообщения">💬</button><button data-app="camera" aria-label="Камера">📷</button></div></div>';
  homeReady=true;
 }
 function header(name,sub){return '<div class="app-header"><div><button class="app-back" data-action="home" aria-label="Назад">‹</button><strong>'+name+'</strong></div><small>'+sub+'</small></div>'}
@@ -348,7 +348,7 @@ async function startSaga(){
  await sleep(1600);lagFill.style.width='99%';lagText.textContent='99%';lagSub.textContent='Оставшийся 1% зарезервирован под рекламу.';
  await sleep(1000);lag.classList.remove('visible');isBusy=false;renderHome();toast('Загрузка завершена. В реальности прошло 6 лет.');logEvent('Рабочий стол загружен','Время загрузки: 6 лет 2 месяца 14 дней.');
  await sleep(1100);simulateLag('ОТКРЫВАЮ БРАУЗЕР',()=>{renderApp('browser');const r=document.getElementById('browser-result'),c=document.getElementById('browser-copy');if(r)r.textContent='Доска объявлений уже ждёт вас';if(c)c.textContent='Вы были единственным посетителем. И единственным объявлением.';toast('Браузер не отвечает. Но тут есть важное объявление.')},true);
- await sleep(3900);
+ await sleep(4700);
  globalMessage('СИСТЕМНОЕ ПРЕДУПРЕЖДЕНИЕ: обнаружено объявление №000.');
  lag.classList.add('visible');lagText.textContent='ВНИМАНИЕ';lagSub.textContent='Сейчас будет что-то совершенно неоправданное';lagFill.style.width='99%';
  await sleep(1650);lag.classList.remove('visible');
@@ -369,7 +369,7 @@ document.getElementById('start-saga').addEventListener('click',startSaga);
 document.getElementById('finale-button').addEventListener('click',triggerFinale);
 document.getElementById('finale-close').addEventListener('click',()=>{finale.classList.remove('open');globalMessage('Тебя никто не осуждает. J5 Prime просто запомнит.');});
 document.getElementById('finale-reboot').addEventListener('click',()=>{finale.classList.remove('open');renderApp('lock');homeReady=false;document.getElementById('hero-fps').textContent='1';globalMessage('Цикл перезапущен. Теперь он знает, что ты знаешь.');document.getElementById('start-saga').textContent='▶ ЗАПУСТИТЬ ЭПОПЕЮ';window.scrollTo({top:0,behavior:'smooth'});});
-document.querySelectorAll('[data-ad]').forEach(b=>b.addEventListener('click',()=>{}));
+document.querySelectorAll('.ad-card [data-ad]').forEach(b=>b.addEventListener('click',()=>triggerAd(b.dataset.ad)));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&finale.classList.contains('open'))finale.classList.remove('open')});
 document.getElementById('year').textContent=new Date().getFullYear();
 setInterval(()=>{document.getElementById('status-time').textContent=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});},15000);

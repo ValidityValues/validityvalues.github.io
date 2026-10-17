@@ -1,25 +1,29 @@
-# /videos — system media folder
+# /videos — системные видеоперебивания
 
-Place MP4 or WebM videos in this folder and list them in `playlist.json`. The phone randomly interrupts itself every 20 seconds and opens a clip at **50% player volume**.
+Телефон сам запускает случайный ролик раз в 20 секунд. Видеоплеер выставляет громкость `0.5` (50%). Короткие встроенные клипы зацикливаются на пять секунд, а после этого уступают место следующему системному безумию.
 
-`playlist.json` supports either a simple filename:
+## Встроенные клипы
 
-```json
-{
-  "videos": ["my-video.mp4", "another-video.webm"]
-}
-```
+- `j5prime-chaos-reel.mp4` — J5 Prime / «ДА БОЖЕЕЕЕ».
+- `02-kasper.webm` — заставка Касперского с 999 угрозами.
+- `03-ad.webm` — системная реклама RAM.
 
-Or objects with a title and optional segment start/end (seconds):
+## Добавить свои видео
+
+1. Положи `.mp4` или `.webm` в эту папку.
+2. Добавь имя, заголовок и, при необходимости, времена фрагмента в `playlist.json`.
+
+Пример:
 
 ```json
 {
   "videos": [
-    { "src": "my-video.mp4", "title": "Unexpected system commercial", "start": 0, "end": 8.5 }
+    { "src": "my-video.mp4", "title": "СРОЧНАЯ РЕКЛАМА", "start": 0, "end": 8.5 },
+    { "src": "another-video.webm", "title": "КАСПЕРСКИЙ В ТВОЕЙ ГОЛОВЕ" }
   ]
 }
 ```
 
-This repository includes `j5prime-chaos-reel.mp4` with three short mini-clips selected randomly by the starter playlist. For your own clips, upload the video file to this folder and edit `playlist.json`. Static GitHub Pages cannot automatically enumerate all files in a directory, so new videos must be added to the playlist.
+Если `end` не задан, ролик повторяется в пятисекундном системном прерывании. Папки на GitHub Pages нельзя автоматически перечислять, поэтому каждый файл нужно добавить в `playlist.json` вручную.
 
-Modern browsers may block autoplay with sound until the visitor interacts with the player. The website keeps volume at 50% and shows an enable-sound button if the browser blocks playback.
+**Про звук:** код устанавливает громкость видео на 50%. Современные браузеры могут запрещать автозапуск видео со звуком до первого пользовательского действия; в этом случае появится кнопка «Разрешить звук 50%».

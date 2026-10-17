@@ -135,7 +135,7 @@ const viewport=$('#viewport');
 const toastBox=$('#toast');
 const feed=$('#event-feed');
 const logState=$('#log-state');
-let phase='home',loadInterval=null,loadTimeout=null,toastTimeout=null,loadStarted=0,activeApp=null,panicCount=0,attemptCount=0,loading=false;
+let phase='home',loadInterval=null,loadTimeout=null,toastTimeout=null,sagaCheck=null,activeApp=null,panicCount=0,attemptCount=0,loading=false;
 let appNote='',browserUrl='https://быстрее-не-будет.рф',phoneNumber='',wifi=true;
 const apps=[
 { id:'phone',name:'Телефон',icon:'📞',color:'c-green',subtitle:'Экстренный вызов процессора'},
@@ -232,7 +232,7 @@ function loadingScreen(app){
 }
 function startApp(app){if(!appMap[app])app='browser';if(loading){toast('Пожалуйста, дождись текущего ожидания. Или перезагрузи телефон.');return}attemptCount++;$('#cpu-value').textContent='100%';$('#ram-value').textContent='99.9%';$('#fps-value').textContent='0.1';$('#float-fps').textContent='0.1';loadingScreen(app)}
 function reboot(){
- clearInterval(loadInterval);clearTimeout(loadTimeout);loading=false;phase='home';panicCount=0;renderHome();resetTelemetry();setState('REBOOTED');addEvent('Перезагрузка устройства','Boot sequence запущен. Текущее ожидание не считается.','KERNEL · REBOOT');toast('J5 Prime снова в строю. Это ненадолго.');$('#status').style.display='flex';$('#clock').textContent=timeShort();
+ clearInterval(loadInterval);clearTimeout(loadTimeout);clearInterval(sagaCheck);sagaCheck=null;loading=false;phase='home';panicCount=0;renderHome();resetTelemetry();setState('REBOOTED');addEvent('Перезагрузка устройства','Boot sequence запущен. Текущее ожидание не считается.','KERNEL · REBOOT');toast('J5 Prime снова в строю. Это ненадолго.');$('#status').style.display='flex';$('#clock').textContent=timeShort();$('#start-demo').disabled=false;$('#start-demo').textContent='▶ ЗАПУСТИТЬ ЭПОПЕЮ ЕЩЁ РАЗ';
 }
 function kernelPanic(app){
  clearInterval(loadInterval);clearTimeout(loadTimeout);loading=false;phase='panic';panicCount++;setState('KERNEL PANIC',true);$('#cpu-value').textContent='LOCK';$('#ram-value').textContent='FULL';$('#fps-value').textContent='0.0';$('#float-fps').textContent='0.0';
@@ -305,7 +305,7 @@ async function saga(){
  if(phase==='panic'||phase==='app'||phase==='loading')reboot();
  startApp('browser');
  // The regular 20-second app load is deliberately part of the saga.
- const check=setInterval(()=>{if(phase==='panic'){clearInterval(check);setTimeout(()=>{document.getElementById('board').scrollIntoView({behavior:'smooth'});toast('Ядро упало. Но доска объявлений всё ещё работает.');$('#start-demo').disabled=false;$('#start-demo').textContent='↻ ЗАПУСТИТЬ ЭПОПЕЮ ЕЩЁ РАЗ'},1800)}},250);
+ sagaCheck=setInterval(()=>{if(phase==='panic'){clearInterval(sagaCheck);sagaCheck=null;setTimeout(()=>{document.getElementById('board').scrollIntoView({behavior:'smooth'});toast('Ядро упало. Но доска объявлений всё ещё работает.');$('#start-demo').disabled=false;$('#start-demo').textContent='↻ ЗАПУСТИТЬ ЭПОПЕЮ ЕЩЁ РАЗ'},1800)}},250);
 }
 viewport.addEventListener('click',e=>{
  const app=e.target.closest('[data-app]');if(app){startApp(app.dataset.app);return}

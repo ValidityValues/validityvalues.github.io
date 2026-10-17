@@ -342,7 +342,151 @@ function action(action){
  if(action==='update'){toast('Ошибка 0x00000001: обновлению стало неловко.');addEvent('Обновление отменено','Система обновилась до той же версии.','UPDATE');return}
  if(action==='install'){toast('Установлено: +4,8 ГБ ожидания.');return}
  if(action==='destiny'){reveal();return}
+ if(action==='kasper-scan'){showKasperAlert(true);toast('Касперский нашёл ещё 999 угроз. Сканирование перезапускается.');addEvent('Kaspersky Scan','Обнаружено 999 угроз. 1000-я угроза — сам антивирус.','ANTIVIRUS');return}
+ if(action==='kasper-snooze'){showKasperAlert(false);toast('Напоминание отложено на 0 секунд. Касперский уже вернулся.');return}
+ if(action==='kasper-buy'){showPhoneAd(true);toast('Оплата отклонена: найдено слишком много денег в системе.');return}
 }
+
+const systemAdData=[
+ {tag:'SYSTEM AD · SPONSORED',title:'КАСПЕРСКИЙ НАШЁЛ 999 ПРОБЛЕМ',copy:'Купи ещё 4.8 ГБ оперативки.'},
+ {tag:'ПОДАРОК · НЕ ОТКЛЮЧАТЬ',title:'ТВОЙ ТЕЛЕФОН ВЫИГРАЛ КУЛЕР',copy:'Курьер будет после завершения Kernel Panic.'},
+ {tag:'ПОСЛЕДНИЙ ШАНС',title:'СКАЧАЙ TURBOBOOSTER 9000',copy:'Всего 4.8 ГБ. Работает на устройствах с 32 ГБ терпения.'},
+ {tag:'KASPERSKY PARTNER AD',title:'ЗАЩИТИ СВОЁ НЕТЕРПЕНИЕ',copy:'Удаляем вирусы, контакты и здравый смысл.'},
+ {tag:'РЕКЛАМА · СОГЛАСИЕ НЕ НУЖНО',title:'КАЛЬКУЛЯТОР PRO MAX ULTRA',copy:'Теперь умножение требует две минуты ожидания.'},
+ {tag:'ИНДИВИДУАЛЬНО ДЛЯ ТЕБЯ',title:'ВЫ ВЫИГРАЛИ 0 БАЙТ RAM',copy:'Нажми получить и получи ещё одно уведомление.'}
+];
+const fallbackBroadcasts=[
+ {title:'ДА БОЖЕЕЕЕ',copy:'J5 PRIME ЛИЧНО ПРОСИТ НЕ НАЖИМАТЬ НИЧЕГО. ТЫ НАЖАЛ.',icons:'🦉 🛡️ 📢',channel:'BREAKING LAG NEWS'},
+ {title:'КУПИ ОПЕРАТИВКУ',copy:'ТЕПЕРЬ ВСЕГО 4.8 ГБ. ДОСТАВКА ПОСЛЕ ПЕРЕЗАГРУЗКИ ЯДРА.',icons:'💾 💸 🫠',channel:'LIVE COMMERCIAL NETWORK'},
+ {title:'KASPERSKY LIVE',copy:'ОБНАРУЖЕНО 999 УГРОЗ. ТЫ — ТЫСЯЧНАЯ.',icons:'🛡️ 🚨 🧠',channel:'ANTIVIRUS BREAKING'},
+ {title:'ОБЗОР ОДНОГО ПИКСЕЛЯ',copy:'КАРТИНКА РЕВОЛЮЦИОННАЯ. ОСТАЛЬНЫЕ ПИКСЕЛИ ЗАГРУЗЯТСЯ В 2034.',icons:'🟥 ⏳ 🟥',channel:'ULTRA HD 0.0001P'},
+ {title:'ОБНОВЛЕНИЕ 99%',copy:'ОСТАЛСЯ ПОСЛЕДНИЙ ПРОЦЕНТ. ОН УШЁЛ ПОКУРИТЬ.',icons:'⚙️ 📶 🪫',channel:'SYSTEM BOOT CINEMA'},
+ {title:'ОБЪЯВЛЕНИЕ №000',copy:'КУПЛЮ ОДИН FPS. ЦЕНА: ВАША ПОСЛЕДНЯЯ НЕРВНАЯ КЛЕТКА.',icons:'📋 💀 🎞️',channel:'J5 PRIME BOARD TV'}
+];
+let videoPlaylist=[],lastVideoIndex=-1,activeVideoEnd=null,videoEndTimer=null,videoFallbackTimer=null,kasperAlertTimer=null,kasperNagLoop=null,systemAdLoop=null,phoneAdLoop=null,adPopupLoop=null,mediaTick=null;
+let videoPlaylistLoaded=false,videoSequence=0;
+const randomVideo=$('#random-video');
+function cleanVideoSource(src){
+ src=String(src||'').trim();if(!src)return '';
+ if(/^https?:\/\//i.test(src)||src.startsWith('/'))return src;
+ return 'videos/'+src.replace(/^\.\//,'').replace(/^videos\//,'');
+}
+async function loadVideoPlaylist(){
+ try{
+  const response=await fetch(new URL('videos/playlist.json',window.location.href),{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();
+  const list=Array.isArray(data)?data:(Array.isArray(data.videos)?data.videos:[]);
+  videoPlaylist=list.map(item=>typeof item==='string'?{src:item,title:item.split('/').pop()}:item)
+   .filter(item=>item&&item.src)
+   .map(item=>({src:cleanVideoSource(item.src),title:item.title||String(item.src).split('/').pop(),start:Number.isFinite(Number(item.start))?Number(item.start):0,end:item.end===undefined||item.end===null?null:Number(item.end)}))
+   .filter(item=>item.src);
+  videoPlaylistLoaded=true;
+  addEvent('Видеокаталог /videos загружен',videoPlaylist.length+' случайных видеоклипов готовы к запуску. Громкость плеера: 50%.','MEDIA SERVICE');
+ }catch(err){
+  videoPlaylist=[];videoPlaylistLoaded=true;
+  addEvent('Каталог /videos недоступен','Плейлист не загружен. Включается аварийный фальш-эфир.','MEDIA SERVICE');
+ }
+}
+function pickRandomClip(){
+ if(!videoPlaylist.length)return null;
+ if(videoPlaylist.length===1){lastVideoIndex=0;return videoPlaylist[0]}
+ let index=Math.floor(Math.random()*videoPlaylist.length);
+ if(index===lastVideoIndex)index=(index+1+Math.floor(Math.random()*(videoPlaylist.length-1)))%videoPlaylist.length;
+ lastVideoIndex=index;return videoPlaylist[index];
+}
+function stopVideoLayer(){
+ clearTimeout(videoFallbackTimer);clearTimeout(videoEndTimer);videoEndTimer=null;activeVideoEnd=null;
+ const v=$('#random-video');try{v.pause()}catch(e){}
+ $('#video-interrupt').classList.add('hidden');$('#video-audio-hint').classList.add('hidden');
+ v.removeAttribute('src');v.load();$('#video-fallback').classList.add('hidden');v.style.display='block';
+}
+function showFakeBroadcast(reason){
+ const broadcast=pick(fallbackBroadcasts);
+ $('#random-video').style.display='none';$('#video-fallback').classList.remove('hidden');
+ $('#video-channel').textContent=broadcast.channel;$('#video-fallback-title').textContent=broadcast.title;$('#video-fallback-copy').textContent=broadcast.copy;
+ $('#video-fallback-icons').textContent=broadcast.icons;$('#video-title').textContent='EMERGENCY BROADCAST / '+broadcast.channel;
+ addEvent('Системный видеоэфир запущен',reason||'Папка /videos молчала. Система взяла эфир на себя.','VIDEO INTERRUPT');
+ videoFallbackTimer=setTimeout(()=>{stopVideoLayer();if(Math.random()<.65)showPhoneAd(false)},7800);
+}
+function launchRandomVideo(source){
+ if($('#reveal').classList.contains('open'))return;
+ stopVideoLayer();
+ $('#video-interrupt').classList.remove('hidden');videoSequence++;
+ const clip=pickRandomClip();
+ if(!clip){showFakeBroadcast('Пока не найдено видео в /videos. Запущен встроенный аварийный эфир-затычка.');return}
+ const v=$('#random-video');
+ $('#video-fallback').classList.add('hidden');v.style.display='block';v.volume=0.5;v.muted=false;v.controls=true;v.playsInline=true;
+ $('#video-title').textContent=clip.title+' / '+source;
+ v.onended=()=>stopVideoLayer();
+ v.onerror=()=>{stopVideoLayer();$('#video-interrupt').classList.remove('hidden');showFakeBroadcast('Не удалось декодировать '+clip.src+'. Система заменила его рекламным эфиром.')};
+ activeVideoEnd=clip.end;
+ v.onloadedmetadata=()=>{
+  const begin=Math.max(0,clip.start||0);
+  if(begin>0){try{v.currentTime=begin}catch(e){}}
+  if(clip.end!==null&&Number.isFinite(clip.end)&&clip.end>begin)videoEndTimer=setTimeout(()=>stopVideoLayer(),(clip.end-begin)*1000+650);
+ };
+ v.src=clip.src;v.load();
+ const attemptPlay=()=>{
+  const p=v.play();
+  if(p&&p.catch)p.catch(()=>{
+    v.pause();$('#video-audio-hint').classList.remove('hidden');
+    addEvent('Автозапуск звука заблокирован','Клип выбран случайно; нажми кнопку в плеере, чтобы разрешить звук на 50%.','MEDIA POLICY');
+  });
+ };
+ v.addEventListener('loadeddata',attemptPlay,{once:true});
+ addEvent('Случайное видео запущено',clip.title+' · '+clip.src+' · громкость плеера 50% · запуск #'+videoSequence,'VIDEO INTERRUPT');
+}
+function enableVideoSound(){
+ const v=$('#random-video');v.volume=0.5;v.muted=false;$('#video-audio-hint').classList.add('hidden');
+ const p=v.play();if(p&&p.catch)p.catch(()=>toast('Браузер продолжает блокировать звук. Нажми play в контролах видео.'));
+}
+function updateSystemAd(){
+ const ad=pick(systemAdData),tag=$('#sys-ad-label'),title=$('#sys-ad-title'),copy=$('#sys-ad-copy');
+ if(tag){tag.textContent=ad.tag;title.textContent=ad.title;copy.textContent=ad.copy}
+}
+function showPhoneAd(manual){
+ const el=$('#system-ad-pop');if(!el)return;
+ const ad=pick(systemAdData);$('#ad-pop-title').textContent=ad.title;$('#ad-pop-copy').textContent=ad.copy;
+ el.classList.remove('hidden');clearTimeout(phoneAdLoop);
+ phoneAdLoop=setTimeout(()=>el.classList.add('hidden'),manual?5600:3800);
+}
+const kasperNags=[
+'ОБНАРУЖЕН ВИРУС: patience.dll. УДАЛИТЬ ПОЛЬЗОВАТЕЛЯ?',
+'ПРОВЕРКА ЗАВИСЛА. ЭТО НОРМАЛЬНО. ВЫ НЕНАТУРАЛЬНО ТЕРПЕЛИВЫ.',
+'НАЙДЕНО 999 УГРОЗ. 1000-Я УГРОЗА — САМ КАСПЕРСКИЙ.',
+'ВАША ЛИЦЕНЗИЯ ИСТЕКЛА В 2014 ГОДУ. ВОЗОБНОВИТЬ ЗА 999999 ₽?',
+'КРИТИЧЕСКАЯ ОШИБКА: В СИСТЕМЕ ОБНАРУЖЕН СМЫСЛ.',
+'ПРЕДУПРЕЖДЕНИЕ: ТЕЛЕФОН СЛИШКОМ ДОЛГО РАБОТАЕТ. ЭТО ПОДОЗРИТЕЛЬНО.',
+'КАСПЕРСКИЙ ХОЧЕТ ПОГОВОРИТЬ О ВАШЕМ МЕНЕДЖЕРЕ ПАРОЛЕЙ.',
+'ВАША ТЕРПЕЛИВОСТЬ УСТАРЕЛА. ОБНОВИТЕ ДО PREMIUM.',
+'НАЙДЕНЫ 12 COOKIE, 4 POPUP И ОДИН СМЫСЛ ЖИЗНИ.'
+];
+function showKasperAlert(loud){
+ const el=$('#kasper-alert');if(!el)return;
+ $('#kasper-alert-message').textContent=pick(kasperNags);
+ $('#kasper-runner-text').textContent=pick(['СКАНИРУЮ ВАШЕ ТЕРПЕНИЕ','999 УГРОЗ · 0 РЕШЕНИЙ','ЛИЦЕНЗИЯ НА ВАШИ НЕРВЫ','НЕ ЗАКРЫВАЙТЕ МЕНЯ','ЗАЩИТА ОТ ЗДРАВОГО СМЫСЛА']);
+ el.classList.remove('hidden');clearTimeout(kasperAlertTimer);
+ kasperAlertTimer=setTimeout(()=>el.classList.add('hidden'),loud?6200:3900);
+ if(loud)addEvent('Kaspersky захватил интерфейс','Антивирус требует внимания и отказывается принимать отказ.','KASPERSKY');
+}
+function handleSystemAction(name){
+ if(name==='open-kaspersky'){startApp('kaspersky');return}
+ if(name==='kasper-close'){showKasperAlert(true);toast('Закрытие отклонено администратором KASPERSKY.EXE.');return}
+ if(name==='kasper-scan'){showKasperAlert(true);toast('Сканирование повторяется. Число угроз увеличилось до 1000.');addEvent('Kaspersky Scan','Обнаружено подозрительное приложение: здравый смысл.','ANTIVIRUS');return}
+ if(name==='kasper-snooze'){showKasperAlert(true);toast('Напоминание отложено на 0 секунд.');return}
+ if(name==='dismiss-ad'){const ad=pick(systemAdData);$('#ad-pop-title').textContent='НЕЛЬЗЯ ПРОПУСТИТЬ: '+ad.title;$('#ad-pop-copy').textContent='Вы отклонили рекламу. Теперь реклама хочет поговорить с вашим менеджером.';setTimeout(()=>$('#system-ad-pop').classList.add('hidden'),2000);return}
+ if(name==='ad-click'){showPhoneAd(true);toast('Реклама открыта в отдельном измерении.');addEvent('Рекламный переход','Перенаправление в магазин ожиданий.','ADVERTISEMENT');return}
+}
+function startChaosLoops(){
+ if(!systemAdLoop)systemAdLoop=setInterval(updateSystemAd,6800);
+ if(!kasperNagLoop)kasperNagLoop=setInterval(()=>{if(Math.random()<.88)showKasperAlert(false)},7500+Math.floor(Math.random()*1800));
+ if(!videoPlaylistLoaded)loadVideoPlaylist();
+ if(!mediaTick)mediaTick=setInterval(()=>launchRandomVideo('AUTO-PLAY / CYCLE 20 SEC'),20000);
+ if(!adPopupLoop)adPopupLoop=setInterval(()=>{if(Math.random()<.68)showPhoneAd(false)},12600);
+ setTimeout(()=>showPhoneAd(false),5400);
+}
+
 function reveal(){const el=$('#reveal');el.classList.add('open');try{if(window.AudioContext){const c=new AudioContext(),o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(180,c.currentTime);o.frequency.exponentialRampToValueAtTime(660,c.currentTime+.35);g.gain.setValueAtTime(.04,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.55);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.56)}}catch(e){}const box=document.createElement('div');box.className='confetti';for(let i=0;i<65;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.animationDelay=Math.random()*1.4+'s';p.style.transform='rotate('+Math.random()*360+'deg)';box.append(p)}document.body.append(box);setTimeout(()=>box.remove(),5000)}
 async function saga(){
  $('#start-demo').disabled=true;$('#start-demo').textContent='⏳ ОЖИДАНИЕ…';toast('Запуск эпопеи. Это не ускорит процессор.');window.scrollTo({top:0,behavior:'smooth'});
@@ -370,7 +514,9 @@ document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='r'&&phase==='p
 $('#year').textContent=new Date().getFullYear();
 setInterval(()=>{$('#clock').textContent=timeShort();},15000);
 renderHome();
-setTimeout(()=>toast('Подсказка: открой любое приложение. Ожидание 20 сек → Kernel Panic.'),2500);
+startChaosLoops();
+setTimeout(()=>showKasperAlert(true),3200);
+setTimeout(()=>toast('SYSTEM NOTE: реклама не отключается. Kaspersky уже бежит к вам.'),2500);
 })();
 </script>
 </body>

@@ -426,7 +426,6 @@ function launchRandomVideo(source){
   if(begin>0){try{v.currentTime=begin}catch(e){}}
   if(clip.end!==null&&Number.isFinite(clip.end)&&clip.end>begin)videoEndTimer=setTimeout(()=>stopVideoLayer(),(clip.end-begin)*1000+650);
  };
- v.src=clip.src;v.load();
  const attemptPlay=()=>{
   const p=v.play();
   if(p&&p.catch)p.catch(()=>{
@@ -435,6 +434,7 @@ function launchRandomVideo(source){
   });
  };
  v.addEventListener('loadeddata',attemptPlay,{once:true});
+ v.src=clip.src;v.load();
  addEvent('Случайное видео запущено',clip.title+' · '+clip.src+' · громкость плеера 50% · запуск #'+videoSequence,'VIDEO INTERRUPT');
 }
 function enableVideoSound(){

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "note": "This reel contains three short randomly selectable mini-clips. Add more MP4/WebM files to this folder and append their filenames to this list.",
+  "videos": [
+    {
+      "src": "j5prime-chaos-reel.mp4",
+      "title": "ДА БОЖЕЕЕЕ / J5 PRIME 0 FPS",
+      "start": 0,
+      "end": 1.12
+    },
+    {
+      "src": "j5prime-chaos-reel.mp4",
+      "title": "KASPERSKY.EXE / 999 УГРОЗ",
+      "start": 1.2,
+      "end": 2.3
+    },
+    {
+      "src": "j5prime-chaos-reel.mp4",
+      "title": "SYSTEM AD / КУПИ RAM",
+      "start": 2.4,
+      "end": 3.4
+    }
+  ]
+}

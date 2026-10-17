@@ -418,13 +418,14 @@ function launchRandomVideo(source){
  const v=$('#random-video');
  $('#video-fallback').classList.add('hidden');v.style.display='block';v.volume=0.5;v.muted=false;v.controls=true;v.playsInline=true;
  $('#video-title').textContent=clip.title+' / '+source;
+ v.loop=clip.end===null;
  v.onended=()=>stopVideoLayer();
  v.onerror=()=>{stopVideoLayer();$('#video-interrupt').classList.remove('hidden');showFakeBroadcast('Не удалось декодировать '+clip.src+'. Система заменила его рекламным эфиром.')};
  activeVideoEnd=clip.end;
  v.onloadedmetadata=()=>{
   const begin=Math.max(0,clip.start||0);
   if(begin>0){try{v.currentTime=begin}catch(e){}}
-  if(clip.end!==null&&Number.isFinite(clip.end)&&clip.end>begin)videoEndTimer=setTimeout(()=>stopVideoLayer(),(clip.end-begin)*1000+650);
+  if(clip.end!==null&&Number.isFinite(clip.end)&&clip.end>begin)videoEndTimer=setTimeout(()=>stopVideoLayer(),(clip.end-begin)*1000+650);else videoEndTimer=setTimeout(()=>stopVideoLayer(),5000);
  };
  const attemptPlay=()=>{
   const p=v.play();

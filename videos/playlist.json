@@ -13,6 +13,30 @@
     {
       "src": "03-ad.webm",
       "title": "SYSTEM AD / КУПИ RAM"
+    },
+    {
+      "src": "video.mp4",
+      "title": "video"
+    },
+    {
+      "src": "video1.mp4",
+      "title": "video1"
+    },
+    {
+      "src": "video2.mp4",
+      "title": "video2"
+    },
+     {
+      "src": "video.MOV",
+      "title": "video3"
+    },
+     {
+      "src": "video.MP4",
+      "title": "video4"
+    },
+    {
+      "src": "video.MP4",
+      "title": "video5"
     }
   ]
 }

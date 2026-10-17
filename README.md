@@ -1,31 +1,30 @@
 # J5 Prime Lag OS — Lagsung Labs
 
-**Live preview (pinned version):** [Open J5 Prime Lag OS](https://rawcdn.githack.com/ValidityValues/j5primelagweb/692569f8a986414af0beab41b992314eafb92ed8/index.html)
+**Целевой адрес после переименования репозитория:** https://validityvalues.github.io/
 
-**Rolling preview:** [raw.githack.com — latest `main`](https://raw.githack.com/ValidityValues/j5primelagweb/main/index.html)
+**Превью текущей версии:** [Открыть сайт через CDN](https://raw.githack.com/ValidityValues/j5primelagweb/main/index.html)
 
-**Source code:** [GitHub repository](https://github.com/ValidityValues/j5primelagweb)
-
-Абсурдный интерактивный сайт про виртуальный Samsung J5 Prime, который воспринимает каждое нажатие как философский вопрос.
+**Исходный код:** [GitHub repository](https://github.com/ValidityValues/j5primelagweb)
 
 ## Что внутри
 
-- Интерактивный телефон с 13 приложениями: телефон, сообщения, камера, галерея, браузер, YouTube-пародия, музыка, файлы, настройки, магазин, терминал, доска объявлений и Касперский.
-- Каждое приложение ждёт **20 секунд**, показывает экран загрузки, на мгновение открывается и затем вызывает стилизованный **Linux Kernel Panic / TTY1**.
-- Системная рекламная полоса, случайные рекламные попапы и Касперский, который бегает по экрану, объявляет 999 угроз и возвращается сразу после закрытия.
-- Каждые **20 секунд** поверх телефона включается случайный ролик из `videos/playlist.json`; плеер ставит громкость **50%**. Если браузер запретит audible autoplay, появится кнопка включения звука.
-- Встроенный видеонабор `/videos`: MP4-заставка J5 и два WebM-клипа — Касперский и реклама RAM.
-- Перезагрузка симуляции, стресс-кнопки, телеметрия, системный журнал и финальная доска объявлений с сюрпризом **«ДА БОЖЕЕЕЕ»**.
-- Адаптивная вёрстка; никаких npm, внешних библиотек или сборки для самого сайта.
+- Интерактивный виртуальный Samsung J5 Prime с приложениями: телефон, сообщения, камера, галерея, браузер, YouTube-пародия, музыка, файлы, настройки, магазин, терминал, доска объявлений и Касперский.
+- Каждое приложение ждёт **20 секунд**, затем на короткое время открывается и вызывает стилизованный **Linux Kernel Panic / TTY1**.
+- Касперский бегает по экрану, показывает абсурдные предупреждения и отказывается нормально закрываться.
+- Системная реклама на рабочем столе и дополнительные всплывающие рекламные окна.
+- Случайный видео-клип поверх телефона каждые **20 секунд** из `videos/playlist.json`; плеер выставляет громкость на **50%**. Современные браузеры могут потребовать одно нажатие для разрешения автоматического воспроизведения со звуком.
+- Адаптивная верстка без npm и сторонних библиотек для основного сайта.
 
-## Локальный запуск
+## Настроить постоянный адрес `validityvalues.github.io`
 
-Открой `index.html` в современном браузере. Для тестирования видео удобнее запускать через HTTP-сервер, например `python -m http.server 8000`, и перейти на `http://localhost:8000` — так браузер сможет загрузить `videos/playlist.json`.
+GitHub требует, чтобы user-site репозиторий назывался точно `validityvalues.github.io`. В текущем проекте workflow публикации уже лежит в `.github/workflows/pages.yml`.
 
-## Добавление роликов
+1. Открой [Settings → General текущего репозитория](https://github.com/ValidityValues/j5primelagweb/settings) и переименуй **Repository name** в `validityvalues.github.io`.
+2. Открой [Settings → Pages](https://github.com/ValidityValues/validityvalues.github.io/settings/pages) и выбери **Source → GitHub Actions**.
+3. На вкладке [Actions](https://github.com/ValidityValues/validityvalues.github.io/actions) проверь запуск workflow **Deploy J5 Prime Lag Edition**.
 
-Положи `.mp4` или `.webm` в `videos/` и добавь имя файла и заголовок в `videos/playlist.json`. GitHub Pages — статический хостинг, поэтому сайт не перечисляет файлы каталога автоматически.
+После успешной публикации адрес будет `https://validityvalues.github.io/`. Репозиторий нужно переименовать под владельцем `ValidityValues`; одного изменения файлов или имени ветки недостаточно.
 
-## Постоянная публикация через GitHub Pages
+## Добавить собственные видео
 
-Для адреса `https://validityvalues.github.io/j5primelagweb/` один раз открой **Settings → Pages** и выбери **Source: GitHub Actions**. Затем workflow `.github/workflows/pages.yml` будет публиковать сайт при push в `main`. Автоматически включить этот параметр через доступную GitHub-интеграцию не удалось: GitHub отклонил изменение настроек из-за ограничения прав. Пока можно использовать превью-ссылки выше.
+Положи `.mp4` или `.webm` в папку `videos/` и укажи их имена в `videos/playlist.json`. GitHub Pages статический и не умеет автоматически перечислять файлы каталога.

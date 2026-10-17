@@ -1,24 +1,18 @@
 {
   "version": 1,
-  "note": "This reel contains three short randomly selectable mini-clips. Add more MP4/WebM files to this folder and append their filenames to this list.",
+  "note": "A random short local video is forced onto the virtual phone every 20 seconds. Player volume is 50%. Add your own MP4 or WebM files and append filenames below.",
   "videos": [
     {
-      "src": "j5prime-chaos-reel.mp4",
-      "title": "ДА БОЖЕЕЕЕ / J5 PRIME 0 FPS",
-      "start": 0,
-      "end": 1.12
+      "src": "01-dabozhe.mp4",
+      "title": "ДА БОЖЕЕЕЕ / J5 PRIME 0 FPS"
     },
     {
-      "src": "j5prime-chaos-reel.mp4",
-      "title": "KASPERSKY.EXE / 999 УГРОЗ",
-      "start": 1.2,
-      "end": 2.3
+      "src": "02-kasper.mp4",
+      "title": "KASPERSKY.EXE / 999 УГРОЗ"
     },
     {
-      "src": "j5prime-chaos-reel.mp4",
-      "title": "SYSTEM AD / КУПИ RAM",
-      "start": 2.4,
-      "end": 3.4
+      "src": "03-ad.mp4",
+      "title": "SYSTEM AD / КУПИ RAM"
     }
   ]
 }

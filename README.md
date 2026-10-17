@@ -1,6 +1,6 @@
 # J5 Prime Lag OS — Lagsung Labs
 
-**Live demo:** [Open J5 Prime Lag OS](https://rawcdn.githack.com/ValidityValues/j5primelagweb/ad4cdccf74a50e7d2eabc8d23b23cb836caf86fd/index.html)
+**Live demo:** [Open J5 Prime Lag OS](https://rawcdn.githack.com/ValidityValues/j5primelagweb/e6d694587b0158c7e294253c64f72d59e8938284/index.html)
 
 **Development preview (tracks `main`):** [raw.githack.com](https://raw.githack.com/ValidityValues/j5primelagweb/main/index.html)
 
